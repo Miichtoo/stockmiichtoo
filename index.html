@@ -5,11 +5,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>📦 Stock RP</title>
+<title>Stock RP</title>
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -17,9 +15,9 @@ box-sizing:border-box;
 }
 
 body{
-font-family:"Segoe UI",sans-serif;
 background:radial-gradient(circle at top,#0d1117,#05080f);
 color:white;
+font-family:"Segoe UI",sans-serif;
 min-height:100vh;
 }
 
@@ -29,16 +27,15 @@ padding:25px;
 }
 
 header h1{
-font-size:30px;
+font-size:28px;
 letter-spacing:2px;
 }
 
 .top-bar{
-width:90%;
-max-width:1000px;
-margin:auto;
 display:flex;
 gap:10px;
+width:80%;
+margin:auto;
 margin-bottom:20px;
 }
 
@@ -49,7 +46,6 @@ border:none;
 border-radius:10px;
 background:#161b22;
 color:white;
-outline:none;
 }
 
 .new-btn{
@@ -58,8 +54,8 @@ border:none;
 border-radius:10px;
 background:#2ea043;
 color:white;
-font-weight:bold;
 cursor:pointer;
+font-weight:bold;
 }
 
 .new-btn:hover{
@@ -67,25 +63,25 @@ opacity:.9;
 }
 
 .container{
-padding:20px;
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:15px;
+padding:20px;
 }
 
 .card{
-position:relative;
 background:linear-gradient(145deg,#161b22,#0d1117);
-border:1px solid #30363d;
 border-radius:15px;
 padding:15px;
 text-align:center;
+border:1px solid #30363d;
 transition:.3s;
+position:relative;
 }
 
 .card:hover{
 transform:translateY(-5px);
-box-shadow:0 0 15px rgba(255,255,255,.08);
+box-shadow:0 0 15px rgba(255,255,255,.05);
 }
 
 .card h3{
@@ -94,57 +90,44 @@ word-break:break-word;
 }
 
 .qty{
-font-size:32px;
-font-weight:bold;
+font-size:28px;
 color:#ffb86c;
-margin:15px 0;
+margin:10px 0;
+font-weight:bold;
 }
 
 .actions{
 display:flex;
 justify-content:center;
 flex-wrap:wrap;
-gap:5px;
 }
 
 button{
 border:none;
-border-radius:8px;
-padding:8px 12px;
+padding:6px 10px;
+margin:3px;
+border-radius:6px;
 cursor:pointer;
-color:white;
 transition:.2s;
+color:white;
+}
+
+.add{background:#2ea043;}
+.remove{background:#da3633;}
+.edit{background:#58a6ff;}
+
+.delete-top{
+position:absolute;
+top:8px;
+right:8px;
+cursor:pointer;
+color:#ff4d4d;
+font-size:18px;
 }
 
 button:hover{
 transform:scale(1.05);
 }
-
-.add{
-background:#2ea043;
-}
-
-.remove{
-background:#da3633;
-}
-
-.edit{
-background:#58a6ff;
-}
-
-.delete-top{
-position:absolute;
-top:8px;
-right:10px;
-font-size:18px;
-cursor:pointer;
-color:#ff4d4d;
-}
-
-.delete-top:hover{
-transform:scale(1.2);
-}
-
 </style>
 
 </head>
@@ -157,30 +140,19 @@ transform:scale(1.2);
 
 <div class="top-bar">
 
-<input
-type="text"
-id="search"
-class="search"
-placeholder="🔎 Rechercher une ressource..."
+<input class="search" id="search" placeholder="🔎 Rechercher...">
 
->
+<button class="new-btn" id="addResource">➕ Ressource</button>
 
-<button
-id="addResource"
-class="new-btn"
-
->
-
-➕ Ressource </button>
+<button class="new-btn" id="adminLogin">🔐 Admin</button>
 
 </div>
 
-<div id="list" class="container"></div>
+<div class="container" id="list"></div>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
 getFirestore,
@@ -191,350 +163,183 @@ updateDoc,
 deleteDoc,
 onSnapshot,
 increment
-}
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ======================
-   FIREBASE
-====================== */
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
-
-apiKey:"TON_API_KEY",
-authDomain:"TON_DOMAIN",
-projectId:"TON_PROJECT_ID"
-
+apiKey: "TON_API_KEY",
+authDomain: "TON_DOMAIN",
+projectId: "TON_PROJECT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ======================
-   DOM
-====================== */
+/* ================= STATE ================= */
+
+let resources = [];
+let isAdmin = false;
+
+/* ================= DOM ================= */
 
 const list = document.getElementById("list");
 const search = document.getElementById("search");
 const addResourceBtn = document.getElementById("addResource");
+const adminLoginBtn = document.getElementById("adminLogin");
 
-let resources = [];
+/* ================= ADMIN LOGIN ================= */
 
-/* ======================
-   FIRESTORE LIVE
-====================== */
+adminLoginBtn.addEventListener("click", () => {
 
-onSnapshot(
-collection(db,"stock"),
-(snapshot)=>{
+const pass = prompt("Mot de passe admin :");
 
-resources=[];
+if(pass === "Xnxx"){
+isAdmin = true;
+alert("Mode admin activé 🔓");
+render();
+}else{
+alert("Mot de passe incorrect ❌");
+}
 
-snapshot.forEach(docSnap=>{
-
-resources.push({
-id:docSnap.id,
-...docSnap.data()
 });
 
+/* ================= FIRESTORE ================= */
+
+onSnapshot(collection(db,"stock"),(snapshot)=>{
+
+resources = [];
+
+snapshot.forEach(docSnap=>{
+resources.push({id:docSnap.id,...docSnap.data()});
 });
 
 resources.sort((a,b)=>
-(a.name || "")
-.localeCompare(
-(b.name || ""),
-"fr"
-)
+(a.name||"").localeCompare(b.name||"","fr")
 );
 
 render();
 
-}
-);
+});
 
-/* ======================
-   SECURITE
-====================== */
-
-function escapeHtml(text){
-
-return String(text)
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
-}
-
-/* ======================
-   AFFICHAGE
-====================== */
+/* ================= RENDER ================= */
 
 function render(){
 
-const filter =
-search.value.toLowerCase();
+const filter = search.value.toLowerCase();
 
-const html = resources
-
-.filter(item =>
-(item.name || "")
-.toLowerCase()
-.includes(filter)
-)
-
-.map(item => `
+list.innerHTML = resources
+.filter(r=>(r.name||"").toLowerCase().includes(filter))
+.map(r=>`
 
 <div class="card">
 
-<div
-class="delete-top"
-onclick="deleteItem('${item.id}')"
-title="Supprimer"
->
-✕
-</div>
+<div class="delete-top" onclick="deleteItem('${r.id}')">✕</div>
 
-<h3>
-${escapeHtml(item.name)}
-</h3>
+<h3>${escapeHtml(r.name)}</h3>
 
-<div class="qty">
-${item.qty || 0}
-</div>
+<div class="qty">${r.qty||0}</div>
 
 <div class="actions">
 
-<button
-class="add"
-onclick="addQty('${item.id}')"
->
-➕
-</button>
-
-<button
-class="remove"
-onclick="removeQty('${item.id}')"
->
-➖
-</button>
-
-<button
-class="edit"
-onclick="editQty('${item.id}',${item.qty || 0})"
->
-✏️
-</button>
+${
+isAdmin ? `
+<button class="add" onclick="addQty('${r.id}')">➕</button>
+<button class="remove" onclick="removeQty('${r.id}')">➖</button>
+<button class="edit" onclick="editQty('${r.id}',${r.qty||0})">✏️</button>
+` : `🔒 Admin requis`
+}
 
 </div>
 
 </div>
 
-`)
-
-.join("");
-
-list.innerHTML = html;
+`).join("");
 
 }
 
-/* ======================
-   AJOUT QUANTITE
-====================== */
+/* ================= SECURITY ================= */
 
+function escapeHtml(text){
+return String(text)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
+}
 
+/* ================= ACTIONS ================= */
 
-   window.addQty = async (id) => {
+window.addQty = async(id)=>{
 
-const amount = parseInt(
-prompt("Combien veux-tu ajouter ?", "1")
-);
+if(!isAdmin) return alert("Accès admin requis 🔒");
 
-if (isNaN(amount) || amount <= 0) return;
+const amount = parseInt(prompt("Combien ajouter ?","1"));
+if(isNaN(amount)||amount<=0) return;
 
-try {
-
-await updateDoc(
-doc(db, "stock", id),
-{
+await updateDoc(doc(db,"stock",id),{
 qty: increment(amount)
-}
-);
-
-} catch (error) {
-console.error(error);
-}
+});
 
 };
-
-
-   
-/* ======================
-   RETRAIT QUANTITE
-====================== */
 
 window.removeQty = async(id)=>{
 
-const item =
-resources.find(
-r => r.id === id
-);
+if(!isAdmin) return alert("Accès admin requis 🔒");
 
-if(!item){
-return;
-}
+const item = resources.find(r=>r.id===id);
+if(!item) return;
 
-const amount = parseInt(
-prompt(
-"Combien retirer ?",
-"1"
-)
-);
+const amount = parseInt(prompt("Combien retirer ?","1"));
+if(isNaN(amount)||amount<=0) return;
 
-if(isNaN(amount) || amount <= 0){
-return;
-}
-
-const newQty = Math.max(
-0,
-(item.qty || 0) - amount
-);
-
-try{
-
-await updateDoc(
-doc(db,"stock",id),
-{
-qty:newQty
-}
-);
-
-}catch(error){
-
-console.error(error);
-
-}
+await updateDoc(doc(db,"stock",id),{
+qty: Math.max(0,(item.qty||0)-amount)
+});
 
 };
 
-/* ======================
-   MODIFIER QUANTITE
-====================== */
+window.editQty = async(id,current)=>{
 
-window.editQty = async(
-id,
-currentQty
-)=>{
+if(!isAdmin) return alert("Accès admin requis 🔒");
 
-const value = prompt(
-"Nouvelle quantité :",
-currentQty
-);
+const v = parseInt(prompt("Nouvelle quantité :",current));
+if(isNaN(v)) return;
 
-if(value === null){
-return;
-}
-
-let qty = parseInt(value);
-
-if(isNaN(qty)){
-qty = 0;
-}
-
-qty = Math.max(0,qty);
-
-try{
-
-await updateDoc(
-doc(db,"stock",id),
-{
-qty
-}
-);
-
-}catch(error){
-
-console.error(error);
-
-}
+await updateDoc(doc(db,"stock",id),{
+qty: Math.max(0,v)
+});
 
 };
-
-/* ======================
-   SUPPRIMER
-====================== */
 
 window.deleteItem = async(id)=>{
 
-if(
-!confirm(
-"Supprimer cette ressource ?"
-)
-){
-return;
-}
+if(!isAdmin) return alert("Accès admin requis 🔒");
 
-try{
+if(!confirm("Supprimer ?")) return;
 
-await deleteDoc(
-doc(db,"stock",id)
-);
-
-}catch(error){
-
-console.error(error);
-
-}
+await deleteDoc(doc(db,"stock",id));
 
 };
 
-/* ======================
-   AJOUT RESSOURCE
-====================== */
+/* ================= ADD RESOURCE ================= */
 
-addResourceBtn
-.addEventListener(
-"click",
-async()=>{
+addResourceBtn.addEventListener("click", async()=>{
 
-const name = prompt(
-"Nom de la ressource :"
-);
+if(!isAdmin) return alert("Accès admin requis 🔒");
 
-if(
-!name ||
-!name.trim()
-){
-return;
-}
+const name = prompt("Nom de la ressource :");
+if(!name || !name.trim()) return;
 
-try{
-
-await addDoc(
-collection(db,"stock"),
-{
+await addDoc(collection(db,"stock"),{
 name:name.trim(),
 qty:0
-}
-);
+});
 
-}catch(error){
+});
 
-console.error(error);
+/* ================= SEARCH ================= */
 
-}
-
-}
-);
-
-/* ======================
-   RECHERCHE
-====================== */
-
-search.addEventListener(
-"input",
-render
-);
+search.addEventListener("input",render);
 
 </script>
 
