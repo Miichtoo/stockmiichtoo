@@ -1,12 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock RP</title>
+
+<title>📦 Stock RP</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -14,9 +17,9 @@ box-sizing:border-box;
 }
 
 body{
+font-family:"Segoe UI",sans-serif;
 background:radial-gradient(circle at top,#0d1117,#05080f);
 color:white;
-font-family:"Segoe UI",sans-serif;
 min-height:100vh;
 }
 
@@ -26,15 +29,16 @@ padding:25px;
 }
 
 header h1{
-font-size:28px;
+font-size:30px;
 letter-spacing:2px;
 }
 
 .top-bar{
+width:90%;
+max-width:1000px;
+margin:auto;
 display:flex;
 gap:10px;
-width:80%;
-margin:auto;
 margin-bottom:20px;
 }
 
@@ -45,6 +49,7 @@ border:none;
 border-radius:10px;
 background:#161b22;
 color:white;
+outline:none;
 }
 
 .new-btn{
@@ -53,8 +58,8 @@ border:none;
 border-radius:10px;
 background:#2ea043;
 color:white;
-cursor:pointer;
 font-weight:bold;
+cursor:pointer;
 }
 
 .new-btn:hover{
@@ -62,25 +67,25 @@ opacity:.9;
 }
 
 .container{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-gap:15px;
 padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:15px;
 }
 
 .card{
+position:relative;
 background:linear-gradient(145deg,#161b22,#0d1117);
+border:1px solid #30363d;
 border-radius:15px;
 padding:15px;
 text-align:center;
-border:1px solid #30363d;
 transition:.3s;
-position:relative;
 }
 
 .card:hover{
 transform:translateY(-5px);
-box-shadow:0 0 15px rgba(255,255,255,.05);
+box-shadow:0 0 15px rgba(255,255,255,.08);
 }
 
 .card h3{
@@ -89,26 +94,30 @@ word-break:break-word;
 }
 
 .qty{
-font-size:28px;
-color:#ffb86c;
-margin:10px 0;
+font-size:32px;
 font-weight:bold;
+color:#ffb86c;
+margin:15px 0;
 }
 
 .actions{
 display:flex;
 justify-content:center;
 flex-wrap:wrap;
+gap:5px;
 }
 
 button{
 border:none;
-padding:6px 10px;
-margin:3px;
-border-radius:6px;
+border-radius:8px;
+padding:8px 12px;
 cursor:pointer;
-transition:.2s;
 color:white;
+transition:.2s;
+}
+
+button:hover{
+transform:scale(1.05);
 }
 
 .add{
@@ -126,16 +135,18 @@ background:#58a6ff;
 .delete-top{
 position:absolute;
 top:8px;
-right:8px;
+right:10px;
+font-size:18px;
 cursor:pointer;
 color:#ff4d4d;
-font-size:18px;
 }
 
-button:hover{
-transform:scale(1.05);
+.delete-top:hover{
+transform:scale(1.2);
 }
+
 </style>
+
 </head>
 
 <body>
@@ -145,21 +156,31 @@ transform:scale(1.05);
 </header>
 
 <div class="top-bar">
+
 <input
-class="search"
+type="text"
 id="search"
+class="search"
 placeholder="🔎 Rechercher une ressource..."
+
 >
-<button class="new-btn" id="addResource">
-➕ Ressource
-</button>
+
+<button
+id="addResource"
+class="new-btn"
+
+>
+
+➕ Ressource </button>
+
 </div>
 
-<div class="container" id="list"></div>
+<div id="list" class="container"></div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
 getFirestore,
@@ -170,24 +191,27 @@ updateDoc,
 deleteDoc,
 onSnapshot,
 increment
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ===========================
-   FIREBASE CONFIG
-   =========================== */
+/* ======================
+   FIREBASE
+====================== */
 
 const firebaseConfig = {
-apiKey: "TON_API_KEY",
-authDomain: "TON_DOMAIN",
-projectId: "TON_PROJECT_ID"
+
+apiKey:"TON_API_KEY",
+authDomain:"TON_DOMAIN",
+projectId:"TON_PROJECT_ID"
+
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ===========================
+/* ======================
    DOM
-   =========================== */
+====================== */
 
 const list = document.getElementById("list");
 const search = document.getElementById("search");
@@ -195,94 +219,41 @@ const addResourceBtn = document.getElementById("addResource");
 
 let resources = [];
 
-/* ===========================
+/* ======================
    FIRESTORE LIVE
-   =========================== */
+====================== */
 
-onSnapshot(collection(db,"stock"),(snapshot)=>{
+onSnapshot(
+collection(db,"stock"),
+(snapshot)=>{
 
-resources = [];
+resources=[];
 
 snapshot.forEach(docSnap=>{
+
 resources.push({
-id: docSnap.id,
+id:docSnap.id,
 ...docSnap.data()
 });
+
 });
 
 resources.sort((a,b)=>
-a.name.localeCompare(b.name,"fr")
+(a.name || "")
+.localeCompare(
+(b.name || ""),
+"fr"
+)
 );
 
 render();
 
-});
-
-/* ===========================
-   RENDER
-   =========================== */
-
-function render(){
-
-const filter = search.value.toLowerCase();
-
-const html = resources
-.filter(item =>
-item.name.toLowerCase().includes(filter)
-)
-.map(item => `
-<div class="card">
-
-<div
-class="delete-top"
-onclick="deleteItem('${item.id}')"
-title="Supprimer"
->
-✕
-</div>
-
-<h3>${escapeHtml(item.name)}</h3>
-
-<div class="qty">
-${item.qty ?? 0}
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addQty('${item.id}')"
->
-+
-</button>
-
-<button
-class="remove"
-onclick="removeQty('${item.id}')"
->
--
-</button>
-
-<button
-class="edit"
-onclick="editQty('${item.id}',${item.qty ?? 0})"
->
-✏️
-</button>
-
-</div>
-
-</div>
-`)
-.join("");
-
-list.innerHTML = html;
-
 }
+);
 
-/* ===========================
-   SECURITE HTML
-   =========================== */
+/* ======================
+   SECURITE
+====================== */
 
 function escapeHtml(text){
 
@@ -295,34 +266,92 @@ return String(text)
 
 }
 
-/* ===========================
-   ACTIONS
-   =========================== */
+/* ======================
+   AFFICHAGE
+====================== */
+
+function render(){
+
+const filter =
+search.value.toLowerCase();
+
+const html = resources
+
+.filter(item =>
+(item.name || "")
+.toLowerCase()
+.includes(filter)
+)
+
+.map(item => `
+
+<div class="card">
+
+<div
+class="delete-top"
+onclick="deleteItem('${item.id}')"
+title="Supprimer"
+>
+✕
+</div>
+
+<h3>
+${escapeHtml(item.name)}
+</h3>
+
+<div class="qty">
+${item.qty || 0}
+</div>
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addQty('${item.id}')"
+>
+➕
+</button>
+
+<button
+class="remove"
+onclick="removeQty('${item.id}')"
+>
+➖
+</button>
+
+<button
+class="edit"
+onclick="editQty('${item.id}',${item.qty || 0})"
+>
+✏️
+</button>
+
+</div>
+
+</div>
+
+`)
+
+.join("");
+
+list.innerHTML = html;
+
+}
+
+/* ======================
+   AJOUT QUANTITE
+====================== */
 
 window.addQty = async(id)=>{
 
-try{
-
-await updateDoc(
-doc(db,"stock",id),
-{
-qty: increment(1)
-}
+const amount = parseInt(
+prompt(
+"Combien ajouter ?",
+"1"
+)
 );
 
-}catch(error){
-
-console.error(error);
-
-}
-
-};
-
-window.removeQty = async(id)=>{
-
-const item = resources.find(r=>r.id===id);
-
-if(!item || item.qty <= 0){
+if(isNaN(amount) || amount <= 0){
 return;
 }
 
@@ -331,7 +360,7 @@ try{
 await updateDoc(
 doc(db,"stock",id),
 {
-qty: increment(-1)
+qty:increment(amount)
 }
 );
 
@@ -343,7 +372,62 @@ console.error(error);
 
 };
 
-window.editQty = async(id,currentQty)=>{
+/* ======================
+   RETRAIT QUANTITE
+====================== */
+
+window.removeQty = async(id)=>{
+
+const item =
+resources.find(
+r => r.id === id
+);
+
+if(!item){
+return;
+}
+
+const amount = parseInt(
+prompt(
+"Combien retirer ?",
+"1"
+)
+);
+
+if(isNaN(amount) || amount <= 0){
+return;
+}
+
+const newQty = Math.max(
+0,
+(item.qty || 0) - amount
+);
+
+try{
+
+await updateDoc(
+doc(db,"stock",id),
+{
+qty:newQty
+}
+);
+
+}catch(error){
+
+console.error(error);
+
+}
+
+};
+
+/* ======================
+   MODIFIER QUANTITE
+====================== */
+
+window.editQty = async(
+id,
+currentQty
+)=>{
 
 const value = prompt(
 "Nouvelle quantité :",
@@ -379,9 +463,17 @@ console.error(error);
 
 };
 
+/* ======================
+   SUPPRIMER
+====================== */
+
 window.deleteItem = async(id)=>{
 
-if(!confirm("Supprimer cette ressource ?")){
+if(
+!confirm(
+"Supprimer cette ressource ?"
+)
+){
 return;
 }
 
@@ -399,11 +491,12 @@ console.error(error);
 
 };
 
-/* ===========================
+/* ======================
    AJOUT RESSOURCE
-   =========================== */
+====================== */
 
-addResourceBtn.addEventListener(
+addResourceBtn
+.addEventListener(
 "click",
 async()=>{
 
@@ -411,7 +504,10 @@ const name = prompt(
 "Nom de la ressource :"
 );
 
-if(!name){
+if(
+!name ||
+!name.trim()
+){
 return;
 }
 
@@ -420,8 +516,8 @@ try{
 await addDoc(
 collection(db,"stock"),
 {
-name: name.trim(),
-qty: 0
+name:name.trim(),
+qty:0
 }
 );
 
@@ -434,9 +530,9 @@ console.error(error);
 }
 );
 
-/* ===========================
+/* ======================
    RECHERCHE
-   =========================== */
+====================== */
 
 search.addEventListener(
 "input",
