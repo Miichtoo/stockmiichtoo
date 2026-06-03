@@ -342,36 +342,33 @@ list.innerHTML = html;
    AJOUT QUANTITE
 ====================== */
 
-window.addQty = async(id)=>{
+
+
+   window.addQty = async (id) => {
 
 const amount = parseInt(
-prompt(
-"Combien ajouter ?",
-"1"
-)
+prompt("Combien veux-tu ajouter ?", "1")
 );
 
-if(isNaN(amount) || amount <= 0){
-return;
-}
+if (isNaN(amount) || amount <= 0) return;
 
-try{
+try {
 
 await updateDoc(
-doc(db,"stock",id),
+doc(db, "stock", id),
 {
-qty:increment(amount)
+qty: increment(amount)
 }
 );
 
-}catch(error){
-
+} catch (error) {
 console.error(error);
-
 }
 
 };
 
+
+   
 /* ======================
    RETRAIT QUANTITE
 ====================== */
