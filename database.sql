@@ -1,0 +1,19 @@
+CREATE DATABASE IF NOT EXISTS stock_rp
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE stock_rp;
+
+CREATE TABLE IF NOT EXISTS resources (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    icon VARCHAR(16) NOT NULL DEFAULT '📦',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_resources_name (name)
+) ENGINE=InnoDB;
+
+INSERT INTO resources (name, quantity, icon)
+VALUES ('Lingot de fer', 0, '🧱')
+ON DUPLICATE KEY UPDATE name = VALUES(name);
